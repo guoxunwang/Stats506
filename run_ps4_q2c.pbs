@@ -9,11 +9,11 @@
 
 ##the number of nodes and processors that the job should be run on
 #PBS -l nodes=1:ppn=1
-##PBS -t 0
-#PBS -l pmem=777Mb
+#PBS -t 1,2,4
+#PBS -l pmem=2000Mb
 
 ##run time (hh:mm:ss) the job will be allocated
-#PBS -l walltime=00:10:00
+#PBS -l walltime=00:27:00
 
 ##Import the shell's environment
 ## This is important if you're using Environment Modules (i.e. module load ...)
@@ -21,11 +21,14 @@
 #PBS -j oe
 
 ##program's STDOUT position
-#PBS -o /home/xunwang/r_batch
+#PBS -o /home/xunwang/ps4
 
 ##email be sent regarding this job
 #PBS -m abe
-##PBS -M xunwang@umich.edu
+#PBS -M xunwang@umich.edu
 
 ##code to be run
-R CMD BATCH --vanilla /home/xunwang/r_batch/ps4_q2c.R /home/xunwang/r_batch/ps4_q2b.Rout
+path=/home/xunwang/ps4
+
+Rscript $path/ps4_q2c.R n_cores=2 mcrep=1e4 sigma=.25*${PBS_ARRAYID} \
+>> $path/ps4_q2c-${PBS_ARRAYID}.Rout
