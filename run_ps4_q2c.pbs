@@ -30,5 +30,6 @@
 ##code to be run
 path=/home/xunwang/ps4
 
-Rscript $path/ps4_q2c.R n_cores=2 mcrep=1e4 sigma=.25*${PBS_ARRAYID} \
->> $path/ps4_q2c-${PBS_ARRAYID}.Rout
+R CMD BATCH --vanilla "--args n_cores=2 mc_rep=1e4 sigma=.25*${PBS_ARRAYID}" \
+$path/ps4_q2c.R  \
+$path/ps4_q2c-${PBS_ARRAYID}.Rout
