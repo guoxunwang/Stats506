@@ -21,11 +21,11 @@
 #PBS -j oe
 
 ##program's STDOUT position
-#PBS -o /home/xunwang/r_batch
+#PBS -o /home/xunwang/ps4
 
 ##email be sent regarding this job
 #PBS -m abe
 ##PBS -M xunwang@umich.edu
 
 ##code to be run
-R CMD BATCH --vanilla /home/xunwang/r_batch/ps4_q2b.R /home/xunwang/r_batch/ps4_q2b.Rout
+R CMD BATCH --vanilla /home/xunwang/ps4/ps4_q2b.R /home/xunwang/ps4/ps4_q2b.Rout
