@@ -1,0 +1,35 @@
+#!/bin/sh
+##name of the job for the queueing system
+#PBS -N xun_ps4_q2c
+
+##the queue that the job should be run in
+#PBS -A stats_flux
+#PBS -l qos=flux,feature=haswell
+#PBS -q flux
+
+##the number of nodes and processors that the job should be run on
+#PBS -l nodes=1:ppn=1
+#PBS -t 1,2,4
+#PBS -l pmem=2000Mb
+
+##run time (hh:mm:ss) the job will be allocated
+#PBS -l walltime=00:27:00
+
+##Import the shell's environment
+## This is important if you're using Environment Modules (i.e. module load ...)
+#PBS -V
+#PBS -j oe
+
+##program's STDOUT position
+#PBS -o /home/xunwang/ps4
+
+##email be sent regarding this job
+#PBS -m abe
+#PBS -M xunwang@umich.edu
+
+##code to be run
+cd /home/xunwang/ps4
+
+R CMD BATCH --vanilla "--args n_cores=2 mc_rep=1e4 sigma=$(echo "${PBS_ARRAYID}*0.25"|bc)"\
+ps4_q2c.R  \
+ps4_q2c-${PBS_ARRAYID}.Rout
