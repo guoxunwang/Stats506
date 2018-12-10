@@ -29,4 +29,6 @@
 
 ##code to be run
 cd /home/xunwang/ps4
-R CMD BATCH --vanilla "--args n_cores=2 mc_rep=1e4 sigma=$(echo "${PBS_ARRAYID}*0.25"|bc)" ps4_q2c.R ps4_q2c-${PBS_ARRAYID}.Rout
+R CMD BATCH --vanilla "--args n_cores=2 mc_rep=1e4 sigma=$(echo "scale=2; ${PBS_ARRAYID}*.25" | bc)"\
+ps4_q2c.R\
+ps4_q2c-${PBS_ARRAYID}.Rout
