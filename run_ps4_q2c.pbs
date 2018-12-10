@@ -13,7 +13,7 @@
 #PBS -l pmem=2000Mb
 
 ##run time (hh:mm:ss) the job will be allocated
-#PBS -l walltime=00:27:00
+#PBS -l walltime=01:00:00
 
 ##Import the shell's environment
 ## This is important if you're using Environment Modules (i.e. module load ...)
@@ -29,7 +29,4 @@
 
 ##code to be run
 cd /home/xunwang/ps4
-
-R CMD BATCH --vanilla "--args n_cores=2 mc_rep=1e4 sigma=$(echo "${PBS_ARRAYID}*0.25"|bc)"\
-ps4_q2c.R  \
-ps4_q2c-${PBS_ARRAYID}.Rout
+R CMD BATCH --vanilla "--args n_cores=2 mc_rep=1e4 sigma=$(echo "${PBS_ARRAYID}*0.25"|bc)" ps4_q2c.R ps4_q2c-${PBS_ARRAYID}.Rout
