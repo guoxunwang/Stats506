@@ -28,5 +28,5 @@
 ##PBS -M xunwang@umich.edu
 
 ##code to be run
-cd /home/xunwnag/ps4
+cd /home/xunwang/ps4
 R CMD BATCH --vanilla ps4_q2b.R ps4_q2b.Rout
