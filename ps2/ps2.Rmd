@@ -1,0 +1,353 @@
+---
+title: "Stats 506, F18, Problem Set 2"
+author: "Xun Wang, xunwang@umich.edu"
+date: "October 13,2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+# 80: --------------------------------------------------------------------------
+```
+
+##Question 1
+```{r message=FALSE, q1_1}
+tib=readr::read_delim("recs2015_usage.csv",delim =',')
+tib[1,1]="estimate"
+tib[2,1]="standard error"
+cv=qnorm(1-{1-.95}/2)
+tib=rbind(tib,tib)
+tib[3,1]="CI_lower bound";tib[3,2]=tib[1,2]-cv*tib[2,2];
+tib[3,3]=tib[1,3]-tib[2,3];tib[3,4]=tib[1,4]-tib[2,4];tib[3,5]=tib[1,5]-tib[2,5]
+tib[4,1]="CI_upper bound";tib[4,2]=tib[1,2]+cv*tib[2,2];
+tib[4,3]=tib[1,3]+tib[2,3];tib[4,4]=tib[1,4]+tib[2,4];tib[4,5]=tib[1,5]+tib[2,5]
+knitr::kable(tib,digits=5,format="pandoc",caption='**Table 1.** *RECS2015 usage*',
+             col.names =c('','Electricity/kwh','Natural gas/100 cubic feet',
+                          'Propane/gallons','Fuel oil/gallons'),align="c")
+```
+
+\pagebreak
+
+##Question 2: Including Plots
+###Part a
+
+Using "fdause" command to import XPT files into Stata and then merging two files 
+by "seqn", there are 8305 observatiosn left after deleting not matched 
+observations.
+
+###Part b
+First, we recode "permanent root fragments" as "permanent" and drop individuals 
+for whom upper right 2nd bicuspid tooth was not assessed. Then we see "tooth not 
+present" and "permanent" as categorical variable 1, and "primary tooth" as 0. 
+Using logistic regression to estimate, we get the relationship between age (in 
+months) and the probability that an 1 appears. 
+```{r q2_1}
+stata_1=read.table("model_1.txt",sep='\t')
+stata_1=stata_1[c(-1,-2,-(3:8),-19,-20,-21),]
+name_coeff=data.frame(name=c("coefficient","standard error","z value","p-value",
+                    "confidence interval"))
+name_1=rbind(name_coeff,name_coeff)
+stata_1=cbind(stata_1[,1],name_1,stata_1[,2])
+knitr::kable(stata_1,digits=5,format="pandoc",caption='**Table 2.** *Logistic 
+             Regression* Relationship between age and probability of tooth=1',
+             col.names=c('variables','','value'),align="c")
+```
+
+Because we select"tooth not present" and "permanent tooth" as 1, so get the 
+regression equation:
+```{r q2_2}
+cat("LP=",0.069678,"*ridagemn",-8.35936,'\n')
+cat("log(P(lose primary)/P(primary))=LP",'\n')
+cat("log(P(primary)/P(lose primary))=-LP",'\n')
+cat("P(primary)=exp(-LP)+/(1+exp(-LP))",'\n')
+cat("P(primary)=exp(-0.069678*ridagemn+8.35936)/(1+exp(-0.069678*ridagemn+8.35936))")
+```
+
+In the following, we use the fitted model in stata to estimate the ages at which 
+25, 50, and 75% of individuals who lose their primary upper right 2nd bicuspid. 
+Then we round these results to the nearest month. the results in months are:
+
+104,120,136 respectively. 
+
+We could get a range of representative age values (in year) by taking the 
+floor of the smallest one and the ceiling of the largest one. That are:
+
+8,9,10,11,12 years old.
+
+```{r q2_3}
+curve(exp(-8.35936+0.069678*x)/(1+exp(-8.35936+0.069678*x)),from=0,to=500,
+      xlab='age in moths',ylab='probability of losing primary tooth')
+abline(v=c(104,120,136))
+```
+
+###Part c
+First, we add gender variable into the existing model. After fitting, 
+we get BIC of this new model is 1542.055, which is bigger than the the BIC of 
+the original model(1533.407). So, we do not add gender into the model. 
+
+Then, we want to improve the model by adding race variable. We manipulate these 
+data by creating indictors for four kind of races: Mexican American, Non-Hispanic 
+White, Non-Hispanic Black and Other Race. We find that White has the largest 
+population, so we see white race as reference. After that, we add other three 
+races into model one by one and test their BIC. The results are as following:
+
+Mexican American: BIC=1542.285
+
+Other Race: BIC=1541.932
+
+Non-Hispanic Black: BIC=1529.281<1533.407
+
+So, we add black as a categorical variable into the model.
+
+At last, we come to test the poverty income ratio in demographic sheet. 
+BIC of the final model equals 1462.895<1529.281. So, the poverty income ratio
+should be retained in the final model.
+
+The regression table is as following:
+```{r q2_4}
+stata_2=read.table("final_model.txt",sep='\t')
+stata_2=stata_2[c(-1,-2,-(3:8),-29,-30,-31),]
+name_2=rbind(name_1,name_1)
+stata_2=cbind(stata_2[,1],name_2,stata_2[,2])
+knitr::kable(stata_2,digits=5,format="pandoc",caption='**Table 3.** *Logistic 
+             Regression* Regression table of the final model',
+             col.names=c('variables','','value'),align="c")
+```
+
+###Part d
+In Stata, we could get the adjusted predictions and marginal effects simply by
+using "margins" command.
+
+First, we should keep in mind that the representative ages determined in part b 
+are 8,9,10,11,12 years old, which equals 96,108,120,132,144 months in our model.
+
+Use margins, we could calculate the Adjusted predctions at the mean: at the mean 
+of each variables and at each of the representative ages and produnce a table by 
+outreg2 command. We import this table as below:
+```{r q2_5}
+stata_3=read.table("margin_1.txt",sep='\t')
+stata_3=stata_3[c(-1,-2,-3,-29,-30,-31),]
+name_3=rbind(name_2,name_coeff)
+stata_3=cbind(stata_3[,1],name_3,stata_3[,2])
+stata_3[,1]=as.character(stata_3[,1])
+stata_3[1,1]="8_at";stata_3[6,1]="9_at";stata_3[11,1]="10_at"
+stata_3[16,1]="11_at";stata_3[21,1]="12_at"
+knitr::kable(stata_3,digits=5,format="pandoc",caption='**Table 4.** *Logistic 
+             Regression* Regression table of Adjusted predctions at the mean. 
+             At the mean of black and poverty income ratio, at representative 
+             age',col.names=c('age/years','','Adjusted predictions'),align="c")
+```
+
+Use margins,dydx command, we could calculate the marginal effects at the mean of 
+retained black categorical variables and at the same representative ages as part 
+b.The table of marginal effects at the mean:
+```{r q2_6}
+stata_4=read.table("margin_2.txt",sep='\t')
+stata_4=stata_4[c(-(1:28),-54,-55,-56),]
+name_4=rbind(name_2,name_coeff)
+stata_4=cbind(stata_4[,1],name_4,stata_4[,3])
+stata_4[,1]=as.character(stata_4[,1])
+stata_4[1,1]="8_at";stata_4[6,1]="9_at";stata_4[11,1]="10_at"
+stata_4[16,1]="11_at";stata_4[21,1]="12_at"
+knitr::kable(stata_4,digits=5,format="pandoc",caption='**Table 5.** *Logistic 
+             Regression* Regression table of Marginal effects at the mean. 
+             At the mean of poverty income ratio, at 0 and 1 of black,at 
+             representative age',col.names=c('age/months','','margins'),
+             align="c")
+```
+
+Also use margins,dydx command, we could calculate the average marginal effects of 
+black categorical variables and at therepresentative ages 96,108,120,132,144 
+months.
+```{r q2_7}
+stata_5=read.table("margin_3.txt",sep='\t')
+stata_5=stata_5[c(-(1:28),-54,-55,-56),]
+name_5=rbind(name_2,name_coeff)
+stata_5=cbind(stata_5[,1],name_5,stata_5[,3])
+stata_5[,1]=as.character(stata_5[,1])
+stata_5[1,1]="8_at";stata_5[6,1]="9_at";stata_5[11,1]="10_at"
+stata_5[16,1]="11_at";stata_5[21,1]="12_at"
+knitr::kable(stata_5,digits=5,format="pandoc",caption='**Table 6.** *Logistic 
+             Regression* Regression table of Average marginal effects. 
+             At 0 and 1 of black,at representative age',
+             col.names=c('age/months','','margins'),align="c")
+```
+
+###Part e
+Finally, we will refit the final model from part c using svy command. First, we 
+need to point out how the survey was designed. Using svyset command, we tells 
+stata to treat "wtmec2yr" as weights, "sdmvstra" as strata, "sdmvpsu" as primary 
+sampling units. And the "vce(linearized)" means survey should has Taylor linearized variance estimation.
+
+Then we get the regression table of the complexed model based on survey 
+environment.
+```{r q2_8}
+stata_6=read.table("svy_final_model.txt",sep='\t')
+stata_6=stata_6[c(-1,-2,-(3:8),-29,-30,-31),]
+name_6=rbind(name_1,name_1)
+stata_6=cbind(stata_6[,1],name_6,stata_6[,2])
+knitr::kable(stata_6,digits=5,format="pandoc",caption='**Table 7.** *Logistic 
+             Regression* Regression table of the final model with survey command',
+             col.names=c('variables','','value'),align="c")
+```
+
+The coefficients of these variables do change but they do not change too much.
+While, the p-value of poverty income ratio increases and this variable 
+changes from significant to non-significant. I think the differences may because 
+of the ignorance of survey design at first. The stratified sampling mechanism and 
+the weights of the survey change the z-value and coefficients of these variables.
+
+\pagebreak
+
+##Question 3
+```{r warning=FALSE, message=FALSE, q3_1}
+source("ps2_q3.R")
+```
+
+###Part a
+Using "read.xport" command to import XPT files into R and then merging two files 
+by "SEQN", there are 8305 observatiosn left after deleting not matched 
+observations.
+
+###Part b
+First, we recode "permanent root fragments" as "permanent" and drop individuals 
+for whom upper right 2nd bicuspid tooth was not assessed. Then we see "tooth not 
+present" and "permanent" as categorical variable 1, and "primary tooth" as 0. 
+Using logistic regression to estimate, we get the relationship between age (in 
+months) and the probability that 1 appears. 
+```{r q3_2}
+r_1=broom::tidy(model_1)
+knitr::kable(r_1,digits=5,format="pandoc",caption='**Table 8.** *Logistic 
+             Regression* Relationship between age and probability of tooth=1',
+             col.names=c('term','estimate','std.error','statistic','p-value'),
+             align="c")
+
+```
+
+Because we select"tooth not present" and "permanent tooth" as 1, so get the 
+regression equation as the first equation as below.
+If we want to know the relationship between age (in months) and the probability 
+of "primary",we need to have an extra step.
+```{r q3_3}
+cat("LP=",model_1$coefficients[2],"*ridagemn",model_1$coefficients[1],'\n')
+cat("log(P(lose primary)/P(primary))=LP",'\n')
+cat("log(P(primary)/P(lose primary))=-LP",'\n')
+LP=c(round(-model_1$coefficients[2],5),"*ridagemn+",
+     round(-model_1$coefficients[1],5))
+cat("P(primary)=exp(-LP)+/(1+exp(-LP))",'\n')
+cat("P(primary)=exp(",LP,")/(1+exp(",LP,"))")
+```
+
+In the following, we use the fitted model in R to estimate the ages at which 
+25, 50, and 75% of individuals who lose their primary upper right 2nd bicuspid. 
+Then we round these results to the nearest month. The results in months are:
+```{r q3_4}
+age_25
+age_50
+age_75
+```
+
+We could get a range of representative age values (in year) by taking the 
+floor of the smallest one and the ceiling of the largest one. That are:
+```{r q3_5}
+age_floor:age_ceiling
+```
+
+Then we show the plot of this relationship and 25,50,75% quantile.
+```{r, fig.align='center', q3_6}
+curve(exp(model_1$coefficients[1]+model_1$coefficients[2]*x)/(1+                            exp(model_1$coefficients[1]+model_1$coefficients[2]*x)),from=0,to=500,
+      xlab='age in moths',ylab='probability of losing primary tooth')
+abline(v=c(104,120,136))
+```
+
+###Part c
+First, we add gender variable into the existing model. After fitting, 
+we get BIC of this new model is:
+```{r q3_7}
+bic_2
+```
+
+which is bigger than the the BIC of the original model:
+```{r q3_8}
+bic_1
+```
+
+So, we do not add gender into the model. 
+
+Then, we want to improve the model by adding race variable. We manipulate these 
+data by creating indictors for four kind of races: Mexican American, Non-Hispanic 
+White, Non-Hispanic Black and Other Race. We find that White has the largest 
+population, so we see white race as reference. After that, we add other three 
+races into model one by one and test their BIC. The results are as following:
+```{r q3_9}
+cat("Mexican American: BIC=",bic_3,'\n')
+cat("Other Race: BIC=",bic_4,'\n')
+cat("Non-Hispanic Black: BIC=",bic_5,"<1533.407")
+```
+
+So, we add black as a categorical variable into the model.
+
+At last, we come to test the poverty income ratio in demographic sheet. 
+BIC of the final model equals:
+```{r q3_10}
+bic_6
+```
+which is smaller than the BIC value of 1529.281.
+
+So, the poverty income ratio should be retained in the final model.
+
+The regression table is as following:
+```{r q3_11}
+r_2=broom::tidy(model_6)
+knitr::kable(r_2,digits=5,format="pandoc",caption='**Table 9.** *Logistic 
+             Regression* Regression table of the final model',
+             col.names=c('term','estimate','std.error','statistic','p-value'),
+             align="c")
+```
+
+###Part d
+First, we should keep in mind that the representative ages determined in part b 
+is 8,9,10,11,12, which equals 96,108,120,132,144 in our model.
+
+Use the predict function, we could calculate the Adjusted predctions at the mean: 
+at the mean of each variables and at each of the representative ages and the result
+is:
+```{r q3_12}
+pred=round(pred,5)
+name_7=c("8_at","9_at","10_at","11_at","12_at")
+r_3=rbind(name_7,pred)
+r_3=cbind(c("age/years","Adajusted Predictions"),r_3)
+knitr::kable(r_3,digits=5,format="pandoc",caption='**Table 10.** *Logistic 
+             Regression* Regression table of Adjusted predctions at the mean. 
+             At the mean of black and poverty income ratio, at representative 
+             age',row.names=FALSE,align="c")
+```
+
+Continuing, we could calculate the marginal effects at the mean of 
+retained black categorical variables and at the same representative ages as part 
+b.The table of marginal effects at the mean:
+```{r q3_13}
+margin_atmean=round(margin_atmean,5)
+name_8=c("8_at","9_at","10_at","11_at","12_at")
+r_4=rbind(name_8,margin_atmean)
+r_4=cbind(c("age/years","margins"),r_4)
+knitr::kable(r_4,digits=5,format="pandoc",caption='**Table 11.** *Logistic 
+             Regression* Regression table of Marginal effects at the mean. 
+             At the mean of poverty income ratio, at 0 and 1 of black,at 
+             representative age',row.names=FALSE,align="c")
+```
+
+Also use predict command, we could calculate the average marginal effects of 
+black categorical variables and at the representative ages 8,9,10,11,12 years.
+```{r q3_14}
+pred_average=round(pred_average,5)
+name_9=c("8_at","9_at","10_at","11_at","12_at")
+r_5=rbind(name_9,pred_average)
+r_5=cbind(c("age/years","margins"),r_5)
+knitr::kable(r_5,digits=5,format="pandoc",caption='**Table 12.** *Logistic 
+             Regression* Regression table of Average marginal effects. 
+             At 0 and 1 of black,at representative age',row.names=FALSE,align="c")
+# 80: --------------------------------------------------------------------------
+```
+
+
