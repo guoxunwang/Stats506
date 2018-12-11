@@ -1,0 +1,61 @@
+---
+title: "Stats 506, F18, Problem Set 4"
+author: "Xun Wang, xunwang@umich.edu"
+date: "December 5,2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+# 80: --------------------------------------------------------------------------
+```
+
+##Question 1
+```{r q1_1, message=FALSE}
+source("ps4_q1.R")
+```
+
+```{r q1_2}
+all_time_leader=all_time_leader%>%
+                  mutate(player=sprintf("%s %s",nameFirst,nameLast))%>%
+                  select(player,debut,birthCountry,Hits)
+cap='**Table 1.** All-time leader in hits for each birth country.'
+knitr::kable(all_time_leader,format='pandoc',caption=cap,align='r',
+             col.names=c("Player","Debut","Country of Birth","Hits"))
+```
+
+\pagebreak 
+
+##Question 2
+###Part a 
+Save the data.frame to results_q4a. It is a data.frame with 112 observations 
+and 6 variables.
+
+###Part b 
+See results of this question in results_q4b.RData.
+
+###Part c
+Print data.frame at the end of the script. 
+See results in ps4_q2c-X.Rout file (X = 1, 2, 4).
+
+\pagebreak 
+
+##Question 3
+###Part a
+Read data into SAS from the folder ./data.
+
+###Part b
+Use regular expression of SAS to select observations with ¡°MRI¡± in the 
+"hcpcs_description" field and "hcpcs_code" starts with a 7.
+
+###Part c
+Select two observations with the highest volume, average payment or total 
+payment becasue one of the obseravtions has two highest value.
+
+###Part d
+Use proc sql to repeat the process above.
+
+###Part e
+We export two csv files ps4_q3c.csv and ps4_q3d.csv. In SAS, we use command
+"proc compare" and we could see from the proc compare report in SAS that these 
+two results match with criterion 0.00001.
