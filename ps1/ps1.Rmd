@@ -1,0 +1,212 @@
+---
+title: "Stats 506, F18, Problem Set 1"
+author: "Xun Wang, xunwang@umich.edu"
+date: "September 30,2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+# 80: --------------------------------------------------------------------------
+```
+
+##Question 1
+  
+  Using bash to execute the shell script, the answers are below:
+```{bash}
+bash ps1_q1.sh
+```
+\pagebreak
+
+##Question 2: Including Plots
+```{r,message=FALSE, include=FALSE, q2}
+source("ps1_q2.R")
+```
+
+###Question 2 Part a
+```{r q2_a}
+title_1='**Table 1.** *Airlines names and percentage:* 
+airplines responsible for at least 1% flights from Jan. 1 to Oct. 31, 2013.'
+cols_1= c('Airlines Names', 'Percentage(%)')
+knitr::kable(carrier_name_list, format='pandoc',digits=2, 
+             caption=title_1, col.names = cols_1)
+```
+    
+  According to table 1, 11 listed airlines were responsible for at least 1% of 
+the flights departing any of the three NYC airports between January 1 and 
+October 31, 2013. And the right column is the percent of thier flights.
+
+###Question 2 Part b
+
+  Because the table is too long, we seperate it into three parts: 
+the table for 2013 year, 2014 year and the difference between them.
+These tables include airline names, flight numbers, percents and limits 
+of confidence intervals.
+```{r q2_b_1}
+title_2='**Table 2.** *Number, percent and confidence interval:* 
+flights in the first 10 months of 2013. '
+cols_2= c('Airlines','Number 2013','Percent 2013(%)',
+          'CI Lower limit 2013(%)','CI Upper limit 2013(%)')
+knitr::kable(tib_2013, format='pandoc',digits=2, 
+             caption=title_2, col.names = cols_2)
+
+```
+
+```{r q2_b_2}
+title_3='**Table 3.** *Number, percent and confidence interval:* 
+flights in the first 10 months of 2014.'
+cols_3=c('Airlines','Numbers 2014','Percent 2014(%)',
+       'CI Lower limit 2014(%)','CI Upper limit 2014(%)')
+knitr::kable(tib_2014, format='pandoc',digits=2, 
+             caption=title_3, col.names = cols_3)
+```
+
+```{r q2_b_3}
+title_4='**Table 4.** *number, percent and confidence interval:* 
+flights difference in the first 10 months of 2013 and the first 10 months of 2014. 
+Sorted by percent of difference.'
+cols_4=c('Airlines','Number_diff','Percent_diff(%)',
+       'CI Lowerlimit_diff(%)','CI Upperlimit_diff(%)')
+knitr::kable(tib_diff, format='pandoc',digits=2, 
+             caption=title_4, col.names = cols_4)
+```
+ 
+  Limiting tables to the airlines identified in part a, and sorted by percent 
+of difference, it could be observed that the largest increase appeared in 
+Delta Air Lines Inc.. And Envoy Air had the largest decrease from year 2013 to 
+year 2014 except the missing value of company Endeavor Air Inc.. We could 
+get the same result by sorting by R functions.
+```{r q2_b_4}
+in_name
+de_name
+```
+
+  Then filtering in R, the below table are airlines showed increase in the percent of 
+flights but a decrease in the number of flights. Calculating in R, up to 2013 
+October there were 279384 times flight in total but 2014 only had 251809 times.
+So decrease in the number of total flights made this phenomenon.
+```{r q2_b_5}
+title_5='**Table 5.** *Number and percent:* 
+flights in the first 10 months of 2013 and the first 10 months of 2014. 
+Sorted by increase in percent and a decrease in number.'
+cols_5= c('Airlines','Numbers13','Percent13(%)',
+          'numbers14','Percent14(%)','number_diff',
+          'Percent_diff(%)')
+knitr::kable(tib_in_de, format='pandoc',digits=2, 
+             caption=title_5, col.names = cols_5)
+```
+
+
+###Question 2 Part c
+
+  Among of the three NYC airports, we produce a table showing the percent 
+of flights each airline was responsible for in 2013, limiting the airlines 
+in part a, including confidence intervals for estimates.
+```{r q2_c_1}
+title_6='**Table 6.** *Number,airports,percent and confidence interval:* flights in 2013.'
+cols_6= c('year','Airports','Airlines','Percent2013(%)',
+          'CI Lowerlimit 2013(%)','CI Upperlimit 2013(%)')
+knitr::kable(nyc2013,format='pandoc',digits=2,caption=title_6,col.names = cols_6)
+```
+
+  Calculating in R, the following results are largest carrier in airport EWR, JFK,LGA, 
+respectively.
+```{r q2_c_2}
+ewr_name_2013
+jfk_name_2013
+lga_name_2013
+```
+\pagebreak
+  And getting the table for 2014 using the same ways.
+```{r q2_c_3}
+title_7='**Table 7.** *Number,airports,percent and confidence interval:* flights in 2014.'
+cols_7= c('year','Airports','Airlines','Percent2014(%)',
+          'CI Lowerlimit 2014(%)','CI Upperlimit 2014(%)')
+knitr::kable(nyc2014,format='pandoc',digits=2,caption=title_7,col.names = cols_7)
+```
+
+  Similarly, we get the largest carrier in airports EWR, JFK,LGA in 2014, respectively.
+```{r q2_c_4}
+ewr_name_2014
+jfk_name_2014
+lga_name_2014
+```
+\pagebreak
+
+##Question 3: Including Plots
+```{r,q3, message=FALSE,include=FALSE}
+source("ps1_q3.R")
+```
+
+###Question 3 Part a
+```{r q3_a_1}
+title_8='**Table 8.** *Divisions, percentage and BRR standard error:* stucco as 
+the major outside wall material within each division.
+Sorted by percent of stucco.'
+cols_8= c('Divisions', 'Percentage of stucco(%)', 'standard error','relative standard error')
+knitr::kable(recs_decode_1, format='pandoc',digits=2, 
+             caption=title_8, col.names = cols_8)
+```
+
+  From the table above, we could see percent of homes having stucco construction 
+as their major outside wall material within each division. Obviously, Mountain South
+had the largest proportion of stucco homes and East South Central had the lowest 
+percent. It is the same with extracting their names in R.
+```{r q3_a_2}
+high_stucco
+low_stucco
+```
+
+
+###Question 3 Part b
+  
+  The table 9 below shows the average total electricity usage in kilowatt hours in 
+each division and also show the result stratified by urban and rural status in 
+table 10.
+```{r q3_b_1}
+title_9='**Table 9.** *Divisions, average electricity usage and BRR standard error:* 
+in total.'
+cols_9= c('Divisions', 'Average usage of electricity', 'standard error','relative standard error')
+knitr::kable(recs_ave_total, format='pandoc',digits=2, 
+             caption=title_9, col.names = cols_9)
+```
+
+```{r q3_b_2}
+title_10='**Table 10.** *Divisions, average electricity usage and BRR standard error:* 
+stratified by urban and rural status.'
+cols_10= c('Divisions', 'status','Average usage of electricity', 'standard error','relative standard error')
+knitr::kable(recs_decode_2, format='pandoc',digits=2, 
+             caption=title_10, col.names = cols_10)
+```
+
+
+###Question 3 Part c
+
+  In order to get the largest disparity between these proportions,  we calculate the 
+proportion of homes with internet access of urban and rural areas first,and the BBR 
+standard error to estimate these proportions repectively.
+
+```{r q3_c_1}
+title_11='**Table 11.** *Divisions, proportion of internet access and BRR standard 
+error.*'
+cols_11= c('Divisions', 'status','Proportion of internet access(%)', 'standard error','relative standard error')
+knitr::kable(recs_decode_3, format='pandoc',digits=2, 
+             caption=title_11, col.names = cols_11)
+```
+
+  And then we get their disparity through spreading the tibble.
+```{r q3_c_2}
+title_12='**Table 12.** *Divisions, disparity of proportion of internet access 
+and BRR standard error:* Sorted by disparity.'
+cols_12= c('Divisions', 'Proportion of rural status(%)',
+           'Proportion of urban status(%)',
+           'Disparity of proportion(%)')
+knitr::kable(recs_disp, format='pandoc',digits=2, 
+             caption=title_12, col.names = cols_12)
+```
+
+  The largest disparity happened in:
+```{r q3_c_3}
+prop_disp
+```
+
